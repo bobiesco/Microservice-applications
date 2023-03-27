@@ -1,0 +1,32 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+
+	"github.com/jung-kurt/gofpdf"
+)
+
+func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		pdf := gofpdf.New("P", "mm", "A4", "")
+		pdf.AddPage()
+		pdf.SetFont("Arial", "B", 16)
+		pdf.Cell(40, 10, "Hello, World!")
+		buffer := new(bytes.Buffer)
+		err := pdf.Output(buffer)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		w.Header().Set("Content-Type", "application/pdf")
+		w.Header().Set("Content-Disposition", "attachment; filename=helloworld.pdf")
+		w.Write(buffer.Bytes())
+	})
+
+	http.ListenAndServe(":8080", nil)
+}
+
